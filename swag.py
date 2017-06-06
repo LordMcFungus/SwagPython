@@ -1,8 +1,10 @@
 import os
+import threading
 from filecmp import cmp
 from shutil import copy2
 from tkinter import *
 from tkinter.filedialog import askdirectory
+
 
 SourceFolder = ""
 TargetFolder = ""
@@ -24,7 +26,7 @@ e2.grid(row=1, column=1)
 
 
 def chooseTargetFolder():
-    TargetDirectoryEntry = askdirectory(title = "Target Folder", mustexist=True)
+    TargetDirectoryEntry = askdirectory(title="Target Folder", mustexist=True)
     e2.insert(10, TargetDirectoryEntry)
 
 
@@ -38,6 +40,7 @@ def show_entry_fields():
 
 
 def iterateThroughFolder():
+    threading.Timer(60.0, iterateThroughFolder).start()
     TargetFiles.clear()
     SourceFiles.clear()
 
@@ -59,22 +62,22 @@ def iterateThroughFolder():
             print(relative_path)
             TargetFiles.append(relative_path)
 
-    for swag in SourceFiles:
-        if not swag in TargetFiles:
-            full_target_path = os.path.join(TargetFolder, swag)
-            full_source_path = os.path.join(SourceFolder, swag)
+    for file in SourceFiles:
+        if not file in TargetFiles:
+            full_target_path = os.path.join(TargetFolder, file)
+            full_source_path = os.path.join(SourceFolder, file)
             if not os.path.exists(os.path.dirname(full_target_path)):
                 os.makedirs((os.path.dirname(full_target_path)))
             copy2(full_source_path, full_target_path)
         else :
-            full_path_targetfile = os.path.join(TargetFolder, swag)
-            full_path_sourcefile = os.path.join(SourceFolder, swag)
+            full_path_targetfile = os.path.join(TargetFolder, file)
+            full_path_sourcefile = os.path.join(SourceFolder, file)
             if not cmp(full_path_sourcefile, full_path_targetfile):
                copy2(full_path_sourcefile, full_path_targetfile)
 
-    for target_swag in TargetFiles:
-        if not target_swag in SourceFiles:
-            full_path_target = os.path.join(TargetFolder, target_swag)
+    for target_file in TargetFiles:
+        if not target_file in SourceFiles:
+            full_path_target = os.path.join(TargetFolder, target_file)
             os.remove(full_path_target)
 
 
@@ -87,4 +90,3 @@ Button(window, text='Show', command=show_entry_fields).grid(row=3, column=1, sti
 Button(window, text='SYNC', command=iterateThroughFolder).grid(row=3, column=3, sticky=W, pady=4)
 
 window.mainloop()
-
